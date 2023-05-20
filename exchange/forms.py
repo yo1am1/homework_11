@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Rate, Search
+from .models import Search
 
 
 class RateForm(forms.ModelForm):

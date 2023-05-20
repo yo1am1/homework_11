@@ -1,6 +1,5 @@
 import datetime
 import decimal
-import sqlite3
 
 import currencyapicom
 import requests
@@ -10,7 +9,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import RateForm
-from .models import Rate, Search
+from .models import Rate
 
 
 class DecimalAsFloatJSONEncoder(DjangoJSONEncoder):
@@ -46,27 +45,16 @@ def display(request):
     if request.method == "POST":
         if "display_buy" in request.POST:
             form = RateForm(request.POST)
+            print(Rate.currency_a)
             if form.is_valid():
                 form.save()
-                con = sqlite3.connect("db.sqlite3")
-                c = con.cursor()
-                val = Rate.currency_a
-                filt = c.execute(
-                    f'''SELECT min(buy) FROM exchange_rate WHERE currency_a = "{val}"'''
-                ).fetchone()
-                con.close()
+                filt = Rate.objects.filter(currency_a='USD').values().order_by('buy', descending=True)
                 return render(request, "index.html", {"filt": filt})
         elif "display_sell" in request.POST:
             form = RateForm(request.POST)
             if form.is_valid():
                 form.save()
-                con = sqlite3.connect("db.sqlite3")
-                c = con.cursor()
-                val = Rate.currency_a
-                filt = c.execute(
-                    f'''SELECT max(sell) FROM exchange_rate WHERE currency_a = "{val}"'''
-                ).fetchone()
-                con.close()
+                filt = Rate.objects.filter(currency_a='USD').values().order_by('sell', ascending=True)
                 return render(request, "index.html", {"filt": filt})
     return render(request, "index.html")
 
@@ -75,7 +63,7 @@ def vkurse(request):
     r = requests.get("https://vkurse.dp.ua/course.json")
     answer = r.json()
 
-    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder)
+    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
 
 
 def currencyapi(request):
@@ -91,4 +79,4 @@ def nbu(request):
     )
     answer = r.json()
 
-    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder)
+    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
