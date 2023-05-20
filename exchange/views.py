@@ -53,7 +53,7 @@ def display(request):
             if form.is_valid():
                 form.save()
                 filt = (
-                    Rate.objects.filter(currency_a="USD")
+                    Rate.objects.filter(currency_a=f"{form.cleaned_data['currency_a']}")
                     .values()
                     .order_by("buy", descending=True)
                     .first()
@@ -64,7 +64,7 @@ def display(request):
             if form.is_valid():
                 form.save()
                 filt = (
-                    Rate.objects.filter(currency_a="USD")
+                    Rate.objects.filter(currency_a=f"{form.cleaned_data['currency_a']}")
                     .values()
                     .order_by("sell", ascending=True)
                     .first()

@@ -23,6 +23,6 @@ class Rate(models.Model):
 
 
 class Search(models.Model):
-    currency_a = models.CharField(max_length=3)
-    currency_b = models.CharField(max_length=3)
+    currency_a = models.DecimalField(max_digits=15, decimal_places=10)
+    currency_b = models.DecimalField(max_digits=15, decimal_places=10)
     date = models.DateField(default=timezone.now)
