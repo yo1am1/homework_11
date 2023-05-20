@@ -48,13 +48,13 @@ def display(request):
             print(Rate.currency_a)
             if form.is_valid():
                 form.save()
-                filt = Rate.objects.filter(currency_a='USD').values().order_by('buy', descending=True)
+                filt = Rate.objects.filter(currency_a='USD').values().order_by('buy', descending=True).first()
                 return render(request, "index.html", {"filt": filt})
         elif "display_sell" in request.POST:
             form = RateForm(request.POST)
             if form.is_valid():
                 form.save()
-                filt = Rate.objects.filter(currency_a='USD').values().order_by('sell', ascending=True)
+                filt = Rate.objects.filter(currency_a='USD').values().order_by('sell', ascending=True).first()
                 return render(request, "index.html", {"filt": filt})
     return render(request, "index.html")
 
