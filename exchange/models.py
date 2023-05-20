@@ -10,8 +10,8 @@ class Rate(models.Model):
     vendor = models.CharField(max_length=255)
     currency_a = models.CharField(max_length=3)
     currency_b = models.CharField(max_length=3)
-    sell = models.DecimalField(max_digits=10, decimal_places=10)
-    buy = models.DecimalField(max_digits=10, decimal_places=10)
+    sell = models.DecimalField(max_digits=15, decimal_places=10)
+    buy = models.DecimalField(max_digits=15, decimal_places=10)
 
     class Meta:
         constraints = [
