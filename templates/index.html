@@ -1,0 +1,7 @@
+<form method="POST" action="{% url 'calculate' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ selected }} {{ filt }}
+    <button type="submit" name="display_buy">Submit (for buy)</button>
+    <button type="submit" name="display_sell">Submit (for sell)</button>
+</form>
