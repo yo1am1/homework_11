@@ -49,7 +49,6 @@ def display(request):
     if request.method == "POST":
         if "display_buy" in request.POST:
             form = RateForm(request.POST)
-            print(Rate.currency_a)
             if form.is_valid():
                 form.save()
                 filt = (
