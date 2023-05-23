@@ -1,9 +1,5 @@
 from django import forms
 
-from .models import Search
 
-
-class RateForm(forms.ModelForm):
-    class Meta:
-        model = Search
-        fields = ["currency_a", "currency_b"]
+class ExchangeForm(forms.Form):
+    amount = forms.FloatField(label="Amount", min_value=0.01)

@@ -20,9 +20,3 @@ class Rate(models.Model):
                 name="unique_rate",
             )
         ]
-
-
-class Search(models.Model):
-    currency_a = models.DecimalField(max_digits=15, decimal_places=10)
-    currency_b = models.DecimalField(max_digits=15, decimal_places=10)
-    date = models.DateField(default=timezone.now)

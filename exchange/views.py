@@ -4,11 +4,10 @@ import decimal
 import currencyapicom
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render
-from django.urls import reverse
 
-from .forms import RateForm
+from .forms import ExchangeForm
 from .models import Rate
 
 
@@ -20,56 +19,75 @@ class DecimalAsFloatJSONEncoder(DjangoJSONEncoder):
 
 
 def index(request):
-    current_date = datetime.date.today()
     current_rates = list(
-        Rate.objects.values("vendor", "currency_a", "currency_b")
-        .filter(date=current_date)
-        .order_by("vendor")
+        Rate.objects.values("vendor", "currency_a", "currency_b").order_by("vendor")
     )
     return JsonResponse(
         {"current_rates": current_rates}, encoder=DecimalAsFloatJSONEncoder
     )
 
 
-def add_param(request):
-    if request.method == "POST":
-        form = RateForm(request.POST)
-
-        if form.is_valid():
-            form.date = datetime.date.today()
-            form.save()
-            return HttpResponseRedirect(reverse("calculate"))
-    else:
-        form = RateForm()
-    context = {"form": form}
-    return render(request, "index.html", context)
-
-
 def display(request):
-    if request.method == "POST":
-        if "display_buy" in request.POST:
-            form = RateForm(request.POST)
-            if form.is_valid():
-                form.save()
-                filt = (
-                    Rate.objects.filter(currency_a=f"{form.cleaned_data['currency_a']}")
-                    .values()
-                    .order_by("buy", descending=True)
-                    .first()
-                )
-                return render(request, "index.html", {"filt": filt})
-        elif "display_sell" in request.POST:
-            form = RateForm(request.POST)
-            if form.is_valid():
-                form.save()
-                filt = (
-                    Rate.objects.filter(currency_a=f"{form.cleaned_data['currency_a']}")
-                    .values()
-                    .order_by("sell", ascending=True)
-                    .first()
-                )
-                return render(request, "index.html", {"filt": filt})
-    return render(request, "index.html")
+    current_date = datetime.date.today()
+    form = ExchangeForm(request.POST)
+    if request.method == "POST" and form.is_valid():
+        if "USD to UAH" in request.POST:
+            num = form.cleaned_data["amount"]
+            current_rates = (
+                Rate.objects.filter(date=current_date, currency_a="USD")
+                .all()
+                .values()
+                .order_by("buy")
+            )
+            cof = list(current_rates)[-1]["buy"]
+            vendor = list(current_rates)[-1]["vendor"]
+            result = num * float(cof)
+            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+        elif "EUR to UAH" in request.POST:
+            num = form.cleaned_data["amount"]
+            current_rates = (
+                Rate.objects.filter(currency_a="EUR").all().values().order_by("buy")
+            )
+            cof = list(current_rates)[-1]["buy"]
+            vendor = list(current_rates)[-1]["vendor"]
+            result = num * float(cof)
+            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+        elif "UAH to USD" in request.POST:
+            num = form.cleaned_data["amount"]
+            current_rates = (
+                Rate.objects.filter(currency_a="USD").all().values().order_by("sell")
+            )
+            cof = list(current_rates)[0]["sell"]
+            vendor = list(current_rates)[0]["vendor"]
+            result = num * 1 / float(cof)
+            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+        elif "UAH to EUR" in request.POST:
+            num = form.cleaned_data["amount"]
+            current_rates = (
+                Rate.objects.filter(currency_a="EUR").all().values().order_by("sell")
+            )
+            cof = list(current_rates)[0]["sell"]
+            vendor = list(current_rates)[0]["vendor"]
+            result = num * 1 / float(cof)
+            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+    else:
+        form = ExchangeForm()
+        return render(request, "index.html", {"form": form})
+
+
+# region JsonOutput
+def privat(request):
+    r = requests.get("https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5")
+    answer = r.json()
+
+    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
+
+
+def monobank(request):
+    r = requests.get("https://api.monobank.ua/bank/currency")
+    answer = r.json()
+
+    return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
 
 
 def vkurse(request):
@@ -93,3 +111,6 @@ def nbu(request):
     answer = r.json()
 
     return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
+
+
+# endregion
