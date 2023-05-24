@@ -144,4 +144,5 @@ def nbu(request):
 
     return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
 
+
 # endregion
