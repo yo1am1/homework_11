@@ -5,7 +5,7 @@ import currencyapicom
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 
 from .forms import ExchangeForm
 from .models import Rate
@@ -20,11 +20,14 @@ class DecimalAsFloatJSONEncoder(DjangoJSONEncoder):
 
 def index(request):
     current_rates = list(
-        Rate.objects.values("vendor", "currency_a", "currency_b").order_by("vendor")
+        Rate.objects.values(
+            "vendor", "currency_a", "currency_b", "sell", "buy"
+        ).order_by("vendor")
     )
-    return JsonResponse(
-        {"current_rates": current_rates}, encoder=DecimalAsFloatJSONEncoder
-    )
+    context = {
+        "all": current_rates,
+    }
+    return render(request, "display.html", context)
 
 
 def display(request):
@@ -102,9 +105,6 @@ def display(request):
     else:
         form = ExchangeForm()
         return render(request, "index.html", {"form": form})
-
-    if "back" in request.POST:
-        return redirect("/exch/")
 
 
 # region JsonOutput

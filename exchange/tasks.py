@@ -1,8 +1,8 @@
 import datetime
 
+from celery import shared_task
 from django.core.exceptions import ValidationError
 
-from .models import Rate
 from .exchange_provider import (
     MonoExchange,
     PrivatExchange,
@@ -10,8 +10,7 @@ from .exchange_provider import (
     NBUExchange,
     CurrencyAPIExchange,
 )
-
-from celery import shared_task
+from .models import Rate
 
 
 @shared_task
