@@ -5,7 +5,7 @@ import currencyapicom
 import requests
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .forms import ExchangeForm
 from .models import Rate
@@ -29,6 +29,7 @@ def index(request):
 
 def display(request):
     current_date = datetime.date.today()
+
     form = ExchangeForm(request.POST)
     if request.method == "POST" and form.is_valid():
         if "USD to UAH" in request.POST:
@@ -39,40 +40,65 @@ def display(request):
                 .values()
                 .order_by("buy")
             )
-            cof = list(current_rates)[-1]["buy"]
-            vendor = list(current_rates)[-1]["vendor"]
-            result = num * float(cof)
-            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+            cof, vendor = (
+                list(current_rates)[-1]["buy"],
+                list(current_rates)[-1]["vendor"],
+            )
+            result = round(num * float(cof), 2)
+            return render(
+                request, "index.html", {"vendor": f"Розрахунок: {result}", "form": form}
+            )
+
         elif "EUR to UAH" in request.POST:
             num = form.cleaned_data["amount"]
             current_rates = (
-                Rate.objects.filter(currency_a="EUR").all().values().order_by("buy")
+                Rate.objects.filter(date=current_date, currency_a="EUR")
+                .all()
+                .values()
+                .order_by("buy")
             )
-            cof = list(current_rates)[-1]["buy"]
-            vendor = list(current_rates)[-1]["vendor"]
-            result = num * float(cof)
+            cof, vendor = (
+                list(current_rates)[-1]["buy"],
+                list(current_rates)[-1]["vendor"],
+            )
+            result = round(num * float(cof), 2)
             return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+
         elif "UAH to USD" in request.POST:
             num = form.cleaned_data["amount"]
             current_rates = (
-                Rate.objects.filter(currency_a="USD").all().values().order_by("sell")
+                Rate.objects.filter(date=current_date, currency_a="USD")
+                .all()
+                .values()
+                .order_by("sell")
             )
-            cof = list(current_rates)[0]["sell"]
-            vendor = list(current_rates)[0]["vendor"]
-            result = num * 1 / float(cof)
+            cof, vendor = (
+                list(current_rates)[0]["sell"],
+                list(current_rates)[0]["vendor"],
+            )
+            result = round(num * 1 / float(cof), 2)
             return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+
         elif "UAH to EUR" in request.POST:
             num = form.cleaned_data["amount"]
             current_rates = (
-                Rate.objects.filter(currency_a="EUR").all().values().order_by("sell")
+                Rate.objects.filter(date=current_date, currency_a="EUR")
+                .all()
+                .values()
+                .order_by("sell")
             )
-            cof = list(current_rates)[0]["sell"]
-            vendor = list(current_rates)[0]["vendor"]
-            result = num * 1 / float(cof)
+            cof, vendor = (
+                list(current_rates)[0]["sell"],
+                list(current_rates)[0]["vendor"],
+            )
+            result = round(num * 1 / float(cof), 2)
             return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
     else:
         form = ExchangeForm()
         return render(request, "index.html", {"form": form})
+
+    if "back" in request.POST:
+        return redirect("/exch/")
 
 
 # region JsonOutput

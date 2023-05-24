@@ -38,7 +38,7 @@
 
         form {
             width: 500px;
-            height: 640px;
+            height: 650px;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 10px;
@@ -51,7 +51,7 @@
             margin: 20px 50px 10px auto;
             width: 120px;
             height: 50px;
-            background-color: #007bff;
+            background-color: white;
             border: 1px solid transparent;
             border-radius: 5px;
             color: #fff;
@@ -64,13 +64,21 @@
     <title>Homework</title>
 </head>
 <body>
+
 <form method="POST" action="{% url 'display' %}">
     {% csrf_token %}
-
+    <button type="submit" class="btn btn-secondary" style="top: 30px; left: 10vw; position: fixed;" name="back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-left"
+             viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                  d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5ZM10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5Z"/>
+        </svg>
+    </button>
     <h1 class="display-4"> Калькулятор валют </h1>
 
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-top: 80px;">
         {{ form.as_p }}
+        <div style="position: relative; " name="answer"> {{ vendor }} </div>
     </div>
 
     <h3 class="text-muted"> Виберіть валюту: </h3>
