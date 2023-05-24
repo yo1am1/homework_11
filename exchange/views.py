@@ -62,7 +62,9 @@ def display(request):
                 list(current_rates)[-1]["vendor"],
             )
             result = round(num * float(cof), 2)
-            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+            return render(
+                request, "index.html", {"vendor": f"Розрахунок: {result}", "form": form}
+            )
 
         elif "UAH to USD" in request.POST:
             num = form.cleaned_data["amount"]
@@ -77,7 +79,9 @@ def display(request):
                 list(current_rates)[0]["vendor"],
             )
             result = round(num * 1 / float(cof), 2)
-            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+            return render(
+                request, "index.html", {"vendor": f"Розрахунок: {result}", "form": form}
+            )
 
         elif "UAH to EUR" in request.POST:
             num = form.cleaned_data["amount"]
@@ -92,7 +96,9 @@ def display(request):
                 list(current_rates)[0]["vendor"],
             )
             result = round(num * 1 / float(cof), 2)
-            return JsonResponse({vendor: result}, encoder=DecimalAsFloatJSONEncoder)
+            return render(
+                request, "index.html", {"vendor": f"Розрахунок: {result}", "form": form}
+            )
     else:
         form = ExchangeForm()
         return render(request, "index.html", {"form": form})
@@ -137,6 +143,5 @@ def nbu(request):
     answer = r.json()
 
     return JsonResponse(answer, encoder=DecimalAsFloatJSONEncoder, safe=False)
-
 
 # endregion
