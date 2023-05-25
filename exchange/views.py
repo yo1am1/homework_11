@@ -19,14 +19,18 @@ class DecimalAsFloatJSONEncoder(DjangoJSONEncoder):
 
 
 def index(request):
+    current_date = datetime.date.today()
     current_rates = list(
-        Rate.objects.values(
-            "vendor", "currency_a", "currency_b", "sell", "buy"
-        ).order_by("vendor")
+        Rate.objects.filter(date=current_date)
+        .values("vendor", "currency_a", "currency_b", "sell", "buy")
+        .order_by("vendor")
     )
-    context = {
-        "all": current_rates,
-    }
+    if current_rates:
+        context = {
+            "all": current_rates,
+        }
+    else:
+        context = {"all": "No data"}
     return render(request, "display.html", context)
 
 

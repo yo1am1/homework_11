@@ -61,12 +61,15 @@
     <h1 style="text-align: center;" class="display-4">Homework</h1>
     <div class="">
 
-        {% for vendor in all %}
+        {% if all != "No data" %}
+            {% for vendor in all %}
 
-            <li>{{ vendor }}</li>
+                <li>{{ vendor }}</li>
 
-        {% endfor %}
-
+            {% endfor %}
+        {% else %}
+            <h3 style="text-align: center; top: 20vh;" class="">No data</h3>
+        {% endif %}
 
     </div>
 </form>
